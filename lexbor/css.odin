@@ -153,8 +153,10 @@ lxb_css_selector_pseudo_t :: struct{
 
 lxb_css_parser::struct {
 	block: lxb_css_parser_state_f           ,
-	// this wrong?  
-    context: rawptr,
+
+	// rename 'context' to 'ctx' because 'context' is a keyword.
+    // context: rawptr,
+    ctx: rawptr,
 
     tkz: ^lxb_css_syntax_tokenizer_t       ,
     selectors: ^lxb_css_selectors_t              ,
@@ -394,8 +396,10 @@ lxb_css_syntax_rule :: struct {
         pipe: ^lxb_css_syntax_cb_pipe_t           ,
         user: rawptr;
 	},
-	// this wrong?  
-	context: rawptr,
+
+	// rename 'context' to 'ctx' because 'context' is a keyword.
+	// context: rawptr,
+	ctx: rawptr,
 
     offset: c.uintptr_t                   ,
     deep: c.size_t                      ,

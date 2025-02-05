@@ -2,40 +2,29 @@ package main
 
 import "core:fmt"
 
-// @echo off
-// 
-// if        "%1" == "debug"       ( goto :DEBUG
-// ) else if "%1" == "release"     ( goto :RELEASE
-// ) else if "%1" == "debug-run"   ( goto :DEBUG_RUN
-// ) else if "%1" == "release-run" ( goto :RELEASE_RUN
-// ) else (
-//   echo Usage:
-//   echo     $ make.cmd [debug, release, debug-run, release-run]
-//   goto :EOF
-// )
-// 
-// :DEBUG
-//   odin build . -debug
-// goto :EOF
-// 
-// :RELEASE
-//   odin build . -o:speed
-// goto :EOF
-// 
-// :DEBUG_RUN
-//   odin run . -debug
-// goto :EOF
-// 
-// :RELEASE_RUN
-//   odin run . -o:speed
-// goto :EOF
-// 
-// REM vim: foldmethod=marker ft=dosbatch fenc=cp932 ff=dos
+// Direct :: struct {
+//   a, b: int,
+// }
+//
+Addin :: struct {
+	a:      int,
+	string: int,
+	// context: int
+}
+// Combined :: struct {
+//   a: int,
+//   using _: Addin,
+//   d: u8,
+// }
 
 main :: proc() {
-	// string := "hi"
-	// string: string = "PUNK"
+	string_ := "hi"
+	a: string = "PUNK"
 	// a: string = "Hi"
-	// fmt.println(string)
-	// fmt.println(a)
+	fmt.println(string_)
+	fmt.println(a)
+	s := Addin{}
+	// fmt.println(s.context)
+	fmt.println(s.string)
+
 }
