@@ -32,9 +32,14 @@ lxb_dom_interface_create_f :: #type proc "c" (
 	document: ^lxb_dom_document_t,
 	tag_id: lxb_tag_id_t,
 	ns: lxb_ns_id_t,
-)
-lxb_dom_interface_clone_f :: #type proc "c" (document: ^lxb_dom_document_t, intrfc: ^rawptr)
-lxb_dom_interface_destroy_f :: #type proc "c" (intrfc: ^rawptr)
+) -> rawptr
+
+lxb_dom_interface_clone_f :: #type proc "c" (
+	document: ^lxb_dom_document_t,
+	intrfc: ^rawptr,
+) -> rawptr
+
+lxb_dom_interface_destroy_f :: #type proc "c" (intrfc: ^rawptr) -> rawptr
 
 
 lxb_dom_node_cb_insert_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t

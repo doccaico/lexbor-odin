@@ -98,6 +98,13 @@ lexbor_avl_node :: struct {
 }
 lexbor_avl_node_t :: lexbor_avl_node
 
+lexbor_array_obj_t :: struct {
+	list:        ^c.uint8_t,
+	size:        c.size_t,
+	length:      c.size_t,
+	struct_size: c.size_t,
+}
+
 // Fucntions
 
 @(default_calling_convention = "c")
