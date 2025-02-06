@@ -2,17 +2,29 @@ package lexbor
 
 import "core:c"
 
+when ODIN_OS == .Windows {
+	// @(extra_linker_flags="/NODEFAULTLIB:" + ("msvcrt" when RAYLIB_SHARED else "libcmt"))
+	foreign import lib {
+		"windows/lexbor.dll" when LEXBOR_SHARED else "windows/lexbor.lib"
+		// "lexbor/windows/lexbor.dll" when LEXBOR_SHARED else "lexbor/windows/lexbor.lib"
+		// "system:Winmm.lib",
+		// "system:Gdi32.lib",
+		// "system:User32.lib",
+		// "system:Shell32.lib",
+	}
+}
+
 // dom module
 
 // Define
 
-lxb_dom_document_cmode_t :: enum {
+lxb_dom_document_cmode_t :: enum c.int {
 	LXB_DOM_DOCUMENT_CMODE_NO_QUIRKS      = 0x00,
 	LXB_DOM_DOCUMENT_CMODE_QUIRKS         = 0x01,
 	LXB_DOM_DOCUMENT_CMODE_LIMITED_QUIRKS = 0x02,
 }
 
-lxb_dom_document_dtype_t :: enum {
+lxb_dom_document_dtype_t :: enum c.int {
 	LXB_DOM_DOCUMENT_DTYPE_UNDEF = 0x00,
 	LXB_DOM_DOCUMENT_DTYPE_HTML  = 0x01,
 	LXB_DOM_DOCUMENT_DTYPE_XML   = 0x02,
@@ -36,10 +48,10 @@ lxb_dom_interface_create_f :: #type proc "c" (
 
 lxb_dom_interface_clone_f :: #type proc "c" (
 	document: ^lxb_dom_document_t,
-	intrfc: ^rawptr,
+	intrfc: rawptr,
 ) -> rawptr
 
-lxb_dom_interface_destroy_f :: #type proc "c" (intrfc: ^rawptr) -> rawptr
+lxb_dom_interface_destroy_f :: #type proc "c" (intrfc: rawptr) -> rawptr
 
 
 lxb_dom_node_cb_insert_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
@@ -47,7 +59,7 @@ lxb_dom_node_cb_remove_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status
 lxb_dom_node_cb_destroy_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
 lxb_dom_node_cb_set_value_f :: #type proc "c" (
 	node: ^lxb_dom_node_t,
-	value: ^lxb_char_t,
+	value: [^]lxb_char_t,
 	length: c.size_t,
 ) -> lxb_status_t
 
@@ -62,7 +74,7 @@ lxb_dom_document :: struct {
 	node:              lxb_dom_node_t,
 	compat_mode:       lxb_dom_document_cmode_t,
 	type:              lxb_dom_document_dtype_t,
-	doctype:           lxb_dom_document_type_t,
+	doctype:           ^lxb_dom_document_type_t,
 	element:           ^lxb_dom_element_t,
 	create_interface:  lxb_dom_interface_create_f,
 	clone_interface:   lxb_dom_interface_clone_f,
@@ -132,7 +144,6 @@ lxb_dom_element :: struct {
 	upper_name:     lxb_dom_attr_id_t,
 	qualified_name: lxb_dom_attr_id_t,
 	is_value:       ^lexbor_str_t,
-	// tood
 	first_attr:     ^lxb_dom_attr_t,
 	last_attr:      ^lxb_dom_attr_t,
 	attr_id:        ^lxb_dom_attr_t,
@@ -151,10 +162,16 @@ lxb_dom_attr :: struct {
 	prev:           ^lxb_dom_attr_t,
 }
 lxb_dom_attr_t :: lxb_dom_attr
+				//
+
+dom_interface_element :: #force_inline proc "c" (obj: rawptr) -> ^lxb_dom_element_t            {
+			return cast(^lxb_dom_element_t)obj
+}
 
 // Fucntions
 
-// @(default_calling_convention = "c")
-// foreign lib {
-// 	ClearBackground :: proc(color: Color) ---
-// }
+@(default_calling_convention = "c", link_prefix="lxb_")
+foreign lib {
+		dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
+		// dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
+}

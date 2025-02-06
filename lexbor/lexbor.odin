@@ -6,6 +6,7 @@ when ODIN_OS == .Windows {
 	// @(extra_linker_flags="/NODEFAULTLIB:" + ("msvcrt" when RAYLIB_SHARED else "libcmt"))
 	foreign import lib {
 		"windows/lexbor.dll" when LEXBOR_SHARED else "windows/lexbor.lib"
+		// "lexbor/windows/lexbor.dll" when LEXBOR_SHARED else "lexbor/windows/lexbor.lib"
 		// "system:Winmm.lib",
 		// "system:Gdi32.lib",
 		// "system:User32.lib",

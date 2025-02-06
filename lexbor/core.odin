@@ -31,13 +31,13 @@ lexbor_mem :: struct {
 	chunk_min_size: c.size_t,
 	chunk_length:   c.size_t,
 }
+lexbor_mem_t :: lexbor_mem
 
 lexbor_mraw_t :: struct {
 	mem:       ^lexbor_mem_t,
 	cache:     ^lexbor_bst_t,
 	ref_count: c.size_t,
 }
-lexbor_mem_t :: lexbor_mem
 
 lexbor_array_t :: struct {
 	list:   ^rawptr,
@@ -63,7 +63,7 @@ lexbor_hash_t :: lexbor_hash
 
 lexbor_hash_entry :: struct {
 	u:      struct #raw_union {
-		long_str:  ^lxb_char_t,
+		long_str:  [^]lxb_char_t,
 		short_str: [LEXBOR_HASH_SHORT_SIZE + 1]lxb_char_t,
 	},
 	length: c.size_t,
@@ -105,6 +105,35 @@ lexbor_array_obj_t :: struct {
 	struct_size: c.size_t,
 }
 
+lexbor_avl :: struct {
+	nodes:      ^lexbor_dobject_t,
+	last_right: ^lexbor_avl_node_t,
+}
+lexbor_avl_t :: lexbor_avl
+
+lexbor_status_t :: enum c.int {
+	LXB_STATUS_OK = 0x0000,
+	LXB_STATUS_ERROR = 0x0001,
+	LXB_STATUS_ERROR_MEMORY_ALLOCATION,
+	LXB_STATUS_ERROR_OBJECT_IS_NULL,
+	LXB_STATUS_ERROR_SMALL_BUFFER,
+	LXB_STATUS_ERROR_INCOMPLETE_OBJECT,
+	LXB_STATUS_ERROR_NO_FREE_SLOT,
+	LXB_STATUS_ERROR_TOO_SMALL_SIZE,
+	LXB_STATUS_ERROR_NOT_EXISTS,
+	LXB_STATUS_ERROR_WRONG_ARGS,
+	LXB_STATUS_ERROR_WRONG_STAGE,
+	LXB_STATUS_ERROR_UNEXPECTED_RESULT,
+	LXB_STATUS_ERROR_UNEXPECTED_DATA,
+	LXB_STATUS_ERROR_OVERFLOW,
+	LXB_STATUS_CONTINUE,
+	LXB_STATUS_SMALL_BUFFER,
+	LXB_STATUS_ABORTED,
+	LXB_STATUS_STOPPED,
+	LXB_STATUS_NEXT,
+	LXB_STATUS_STOP,
+	LXB_STATUS_WARNING,
+}
 // Fucntions
 
 @(default_calling_convention = "c")
