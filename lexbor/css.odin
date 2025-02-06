@@ -212,7 +212,7 @@ lxb_css_syntax_token :: struct {
 lxb_css_syntax_token_t :: lxb_css_syntax_token
 
 lxb_css_syntax_token_base_t :: struct {
-	begin:   ^lxb_char_t,
+	begin:   [^]lxb_char_t,
 	length:  c.size_t,
 	user_id: c.uintptr_t,
 }
