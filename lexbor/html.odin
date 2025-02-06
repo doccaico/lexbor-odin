@@ -74,5 +74,6 @@ lxb_html_document_opt_t :: c.uint
 @(default_calling_convention = "c", link_prefix = "lxb_")
 foreign lib {
 	html_document_create :: proc() -> ^lxb_html_document_t ---
+	html_document_destroy :: proc(document: ^lxb_html_document_t) -> ^lxb_html_document_t ---
 	html_document_parse :: proc(document: ^lxb_html_document_t, html: [^]lxb_char_t, size: c.size_t) -> lxb_status_t ---
 }

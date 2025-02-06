@@ -166,6 +166,7 @@ dom_interface_element :: #force_inline proc "c" (obj: rawptr) -> ^lxb_dom_elemen
 	return cast(^lxb_dom_element_t)obj
 }
 
+
 // Fucntions
 
 @(default_calling_convention = "c", link_prefix = "lxb_")

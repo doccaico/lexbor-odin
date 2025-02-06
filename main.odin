@@ -20,6 +20,8 @@ main :: proc() {
 	</body>
 	</html>  
 	`
+
+
 	// html := "<div>Works fine!</div> "
 	// html := "<body><div>Works fine!</div></body> "
 
@@ -55,20 +57,14 @@ main :: proc() {
 
 	// tag_name := lxb.dom_element_qualified_name(lxb.dom_interface_element(document.body), nil)
 	// tag_name := lxb.dom_element_qualified_name(cast(^lxb.lxb_dom_element_t)document.body, nil)
-	fmt.println(tag_name[0])
+
 	fmt.println("Start.")
+
+	fmt.println(tag_name[0])
 	fmt.println("punk")
 	fmt.printf("Element tag name: %s\n", tag_name)
-	defer fmt.println("Finished.")
 
-	// fmt.println(len(html))
-	// if (doc.head == nil) {
-	// 	fmt.println("head is 'nil'")
-	// }
-	// fmt.println(doc.dom_document.doctype.name)
-	// fmt.println(doc.head.element.element.first_attr.value.length)
-	// fmt.println(doc.head.element.element.first_attr.value.length)
-	// fmt.println(doc.head.element.element.first_attr.value.length)
-	// fmt.println(doc.head.element.element.first_attr.value.length)
-	// fmt.println(doc.head.element.element.upper_name)
+	fmt.println("Finished.")
+
+	lxb.html_document_destroy(document)
 }

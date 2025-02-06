@@ -1,6 +1,8 @@
 package lexbor
 
-// dom module
+// all checked.
+
+// core module
 
 when ODIN_OS == .Windows {
 	when LEXBOR_SHARED {
@@ -142,6 +144,7 @@ lexbor_status_t :: enum c.int {
 	LXB_STATUS_STOP,
 	LXB_STATUS_WARNING,
 }
+
 // Fucntions
 
 @(default_calling_convention = "c")
