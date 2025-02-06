@@ -2,21 +2,17 @@ package lexbor
 
 // all checked.
 
-import "core:c"
+// dom module
 
 when ODIN_OS == .Windows {
-	// @(extra_linker_flags="/NODEFAULTLIB:" + ("msvcrt" when RAYLIB_SHARED else "libcmt"))
-	foreign import lib {
-		"windows/lexbor.dll" when LEXBOR_SHARED else "windows/lexbor.lib"
-		// "lexbor/windows/lexbor.dll" when LEXBOR_SHARED else "lexbor/windows/lexbor.lib"
-		// "system:Winmm.lib",
-		// "system:Gdi32.lib",
-		// "system:User32.lib",
-		// "system:Shell32.lib",
+	when LEXBOR_SHARED {
+		foreign import lib "windows/lexbor.dll"
+	} else {
+		foreign import lib "windows/lexbor.lib"
 	}
 }
 
-// dom module
+import "core:c"
 
 // Define
 
@@ -164,16 +160,16 @@ lxb_dom_attr :: struct {
 	prev:           ^lxb_dom_attr_t,
 }
 lxb_dom_attr_t :: lxb_dom_attr
-				//
 
-dom_interface_element :: #force_inline proc "c" (obj: rawptr) -> ^lxb_dom_element_t            {
-			return cast(^lxb_dom_element_t)obj
+
+dom_interface_element :: #force_inline proc "c" (obj: rawptr) -> ^lxb_dom_element_t {
+	return cast(^lxb_dom_element_t)obj
 }
 
 // Fucntions
 
-@(default_calling_convention = "c", link_prefix="lxb_")
+@(default_calling_convention = "c", link_prefix = "lxb_")
 foreign lib {
-		dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
-		// dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
+	dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
+	// dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
 }

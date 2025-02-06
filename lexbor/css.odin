@@ -2,11 +2,20 @@ package lexbor
 
 // all checked.
 
-import "core:c"
-
 // css module
 
+when ODIN_OS == .Windows {
+	when LEXBOR_SHARED {
+		foreign import lib "windows/lexbor.dll"
+	} else {
+		foreign import lib "windows/lexbor.lib"
+	}
+}
+
+import "core:c"
+
 // Define
+
 lxb_css_memory_t :: struct {
 	objs:      ^lexbor_dobject_t,
 	mraw:      ^lexbor_mraw_t,
