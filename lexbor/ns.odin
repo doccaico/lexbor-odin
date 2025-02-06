@@ -1,5 +1,7 @@
 package lexbor
 
+// all checked.
+
 import "core:c"
 
 // ns module

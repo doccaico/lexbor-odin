@@ -1,5 +1,7 @@
 package lexbor
 
+// all checked.
+
 import "core:c"
 
 // css module
@@ -215,27 +217,27 @@ lxb_css_syntax_token_base_t :: struct {
 	user_id: c.uintptr_t,
 }
 
-
-lxb_css_syntax_token_comment_t :: lxb_css_syntax_token_string_t
-lxb_css_syntax_token_percentage_t :: lxb_css_syntax_token_number_t
+lxb_css_syntax_token_ident_t :: lxb_css_syntax_token_string_t
+lxb_css_syntax_token_function_t :: lxb_css_syntax_token_string_t
+lxb_css_syntax_token_at_keyword_t :: lxb_css_syntax_token_string_t
 lxb_css_syntax_token_hash_t :: lxb_css_syntax_token_string_t
 lxb_css_syntax_token_bad_string_t :: lxb_css_syntax_token_string_t
-lxb_css_syntax_token_l_parenthesis_t :: lxb_css_syntax_token_base_t
-lxb_css_syntax_token_r_parenthesis_t :: lxb_css_syntax_token_base_t
-lxb_css_syntax_token_cdc_t :: lxb_css_syntax_token_base_t
-lxb_css_syntax_token_function_t :: lxb_css_syntax_token_string_t
-lxb_css_syntax_token_ident_t :: lxb_css_syntax_token_string_t
 lxb_css_syntax_token_url_t :: lxb_css_syntax_token_string_t
 lxb_css_syntax_token_bad_url_t :: lxb_css_syntax_token_string_t
-lxb_css_syntax_token_at_keyword_t :: lxb_css_syntax_token_string_t
+lxb_css_syntax_token_percentage_t :: lxb_css_syntax_token_number_t
 lxb_css_syntax_token_whitespace_t :: lxb_css_syntax_token_string_t
+lxb_css_syntax_token_cdc_t :: lxb_css_syntax_token_base_t
+lxb_css_syntax_token_l_parenthesis_t :: lxb_css_syntax_token_base_t
+lxb_css_syntax_token_r_parenthesis_t :: lxb_css_syntax_token_base_t
+lxb_css_syntax_token_comment_t :: lxb_css_syntax_token_string_t
 lxb_css_syntax_token_terminated_t :: lxb_css_syntax_token_base_t
+
+lxb_css_syntax_cb_pipe_t :: lxb_css_syntax_cb_base_t
+lxb_css_syntax_cb_block_t :: lxb_css_syntax_cb_base_t
+lxb_css_syntax_cb_function_t :: lxb_css_syntax_cb_base_t
+lxb_css_syntax_cb_components_t :: lxb_css_syntax_cb_base_t
 lxb_css_syntax_cb_at_rule_t :: lxb_css_syntax_cb_base_t
 lxb_css_syntax_cb_qualified_rule_t :: lxb_css_syntax_cb_base_t
-lxb_css_syntax_cb_components_t :: lxb_css_syntax_cb_base_t
-lxb_css_syntax_cb_function_t :: lxb_css_syntax_cb_base_t
-lxb_css_syntax_cb_block_t :: lxb_css_syntax_cb_base_t
-lxb_css_syntax_cb_pipe_t :: lxb_css_syntax_cb_base_t
 
 lxb_css_syntax_token_string_t :: struct {
 	base:   lxb_css_syntax_token_base_t,
@@ -259,6 +261,7 @@ lxb_css_syntax_token_delim_t :: struct {
 	base:      lxb_css_syntax_token_base_t,
 	character: lxb_char_t,
 }
+
 lxb_css_syntax_token_type_t :: enum c.int {
 	LXB_CSS_SYNTAX_TOKEN_UNDEF = 0x00,
 	LXB_CSS_SYNTAX_TOKEN_IDENT,
@@ -296,18 +299,18 @@ lxb_css_syntax_tokenizer :: struct {
 	cache:        ^lxb_css_syntax_tokenizer_cache_t,
 	tokens:       ^lexbor_dobject_t,
 	parse_errors: ^lexbor_array_obj_t,
-	in_begin:     ^lxb_char_t,
-	in_end:       ^lxb_char_t,
-	begin:        ^lxb_char_t,
+	in_begin:     [^]lxb_char_t,
+	in_end:       [^]lxb_char_t,
+	begin:        [^]lxb_char_t,
 	offset:       c.uintptr_t,
 	cache_pos:    c.size_t,
 	prepared:     c.size_t,
 	mraw:         ^lexbor_mraw_t,
 	chunk_cb:     lxb_css_syntax_tokenizer_chunk_f,
 	chunk_ctx:    rawptr,
-	start:        ^lxb_char_t,
-	pos:          ^lxb_char_t,
-	end:          ^lxb_char_t,
+	start:        [^]lxb_char_t,
+	pos:          [^]lxb_char_t,
+	end:          [^]lxb_char_t,
 	buffer:       [128]lxb_char_t,
 	token_data:   lxb_css_syntax_token_data_t,
 	opt:          c.uint,
@@ -325,8 +328,8 @@ lxb_css_syntax_tokenizer_cache_t :: struct {
 
 lxb_css_syntax_tokenizer_chunk_f :: #type proc "c" (
 	tkz: ^lxb_css_syntax_tokenizer_t,
-	data: [^]lxb_char_t,
-	end: [^]lxb_char_t,
+	data: ^[^]lxb_char_t,
+	end: ^[^]lxb_char_t,
 	ctx: rawptr,
 ) -> lxb_status_t
 
@@ -390,7 +393,7 @@ lxb_css_syntax_state_f :: #type proc "c" (
 	parser: ^lxb_css_parser_t,
 	token: ^lxb_css_syntax_token_t,
 	rule: ^lxb_css_syntax_rule_t,
-) -> [^]lxb_char_t
+) -> ^lxb_css_syntax_token_t
 
 lxb_css_syntax_cb_base_t :: struct {
 	state:  lxb_css_parser_state_f,
@@ -475,7 +478,6 @@ lxb_css_parser_stage_t :: enum c.int {
 	LXB_CSS_PARSER_STOP,
 	LXB_CSS_PARSER_END,
 }
-
 
 // Fucntions
 

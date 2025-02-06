@@ -1,5 +1,7 @@
 package lexbor
 
+// all checked.
+
 import "core:c"
 
 when ODIN_OS == .Windows {
@@ -53,10 +55,10 @@ lxb_dom_interface_clone_f :: #type proc "c" (
 
 lxb_dom_interface_destroy_f :: #type proc "c" (intrfc: rawptr) -> rawptr
 
-
-lxb_dom_node_cb_insert_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
 lxb_dom_node_cb_remove_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
+lxb_dom_node_cb_insert_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
 lxb_dom_node_cb_destroy_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
+
 lxb_dom_node_cb_set_value_f :: #type proc "c" (
 	node: ^lxb_dom_node_t,
 	value: [^]lxb_char_t,

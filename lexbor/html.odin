@@ -1,5 +1,7 @@
 package lexbor
 
+// all checked.
+
 import "core:c"
 // LEXBOR_SHARED :: #config(LEXBOR_SHARED, false)
 

@@ -1,5 +1,7 @@
 package lexbor
 
+// all checked.
+
 import "core:c"
 
 // selectors module
@@ -16,11 +18,6 @@ lxb_selectors :: struct {
 	status:  lxb_status_t,
 }
 lxb_selectors_t :: lxb_selectors
-
-lxb_selectors_entry_f :: #type proc "c" (
-	selectors: ^lxb_selectors_t,
-	entry: ^lxb_selectors_entry_t,
-) -> lxb_selectors_entry_t
 
 lxb_selectors_entry :: struct {
 	id:         c.uintptr_t,
