@@ -7,6 +7,13 @@ import lxb "./lexbor"
 
 main :: proc() {
 
+	fmt.println("A")
+	length: uint = 5
+	p: ^uint
+	p = &length
+	fmt.println(p^)
+	fmt.println("B")
+
 	html :: `
 	<!DOCTYPE html>
 	<html lang="ja">
@@ -18,6 +25,8 @@ main :: proc() {
 	</body>
 	</html>
 	`
+
+
 	doc := lxb.html_document_create()
 	if (doc == nil) {
 		fmt.println("document is 'nil'")
