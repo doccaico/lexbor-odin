@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // lexbor module
 
 LEXBOR_SHARED :: #config(LEXBOR_SHARED, false)

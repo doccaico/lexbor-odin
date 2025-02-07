@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // tag module
 
 when ODIN_OS == .Windows {

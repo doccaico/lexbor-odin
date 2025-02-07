@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // css module
 
 when ODIN_OS == .Windows {

@@ -1,5 +1,6 @@
 package main
 
+import "base:intrinsics"
 import "core:c"
 import "core:fmt"
 import "core:os"
@@ -54,6 +55,51 @@ main :: proc() {
 		fmt.println("document is 'nil'")
 		os.exit(1)
 	}
+	fmt.println(size_of(lxb.lxb_html_document_t)) // 344 different 24
+	// fmt.println(size_of(lxb.lxb_html_document_css_t)) // 72 ok
+	fmt.println("lxb_dom_document_t", size_of(lxb.lxb_dom_document_t)) // 224 different 24
+	fmt.println(size_of(lxb.lxb_dom_node_t)) // 96 ok
+	fmt.println(size_of(lxb.lxb_dom_document_cmode_t)) // 4 ok
+	fmt.println(size_of(lxb.lxb_dom_document_dtype_t)) // 4 ok
+	fmt.println(size_of(^lxb.lxb_dom_document_type_t)) // 8 ok
+	fmt.println(size_of(^lxb.lxb_dom_element_t)) // 8 ok
+	fmt.println(size_of(lxb.lxb_dom_interface_create_f)) // 8 ok
+	fmt.println(size_of(lxb.lxb_dom_interface_clone_f)) // 8 ok
+	fmt.println(size_of(lxb.lxb_dom_interface_destroy_f)) // 8 ok
+	fmt.println(size_of(^lxb.lxb_dom_document_node_cb_t)) // 8 ok
+	fmt.println(size_of(^lxb.lexbor_mraw_t)) // 8 ok
+	fmt.println(size_of(^lxb.lexbor_hash_t)) // 8 ok
+	fmt.println(size_of(rawptr)) // 8 ok
+	fmt.println(size_of(bool)) // 1 ok
+	fmt.println(&document.dom_document.tags_inherited) // 1 ok
+	fmt.println(&document.dom_document.ns_inherited) // 1 ok
+	fmt.println(&document.dom_document.scripting) // 1 ok
+
+	fmt.println(align_of(bool)) // 1 ok
+	fmt.println(align_of(^lxb.lxb_dom_document_node_cb_t)) // 1 ok
+
+	fmt.println(document.dom_document.node.local_name)
+	// 	fmt.println("punks")
+	// }
+	fmt.println("---------------------------------------")
+	fmt.println(size_of(lxb.lxb_dom_node_t))
+	fmt.println(size_of(lxb.lxb_dom_element_t))
+	fmt.println(size_of(lxb.lxb_dom_attr_t))
+	fmt.println(size_of(lxb.lxb_dom_event_target_t))
+	fmt.println(size_of(lxb.lxb_dom_document_node_cb_t))
+	fmt.println(size_of(lxb.lxb_dom_document_type))
+	fmt.println(size_of(c.uintptr_t))
+	fmt.println(size_of(lxb.lexbor_mraw_t))
+	fmt.println(size_of(lxb.lexbor_hash_t))
+
+	// fmt.println(&document.dom_document) // error
+	// fmt.println(&document.dom_document.compat_mode) // 4 ok
+	// fmt.println(&document.dom_document.type) // 8 ok
+	// fmt.println(&document.dom_document.node) // error
+	// fmt.println(&document.dom_document.scripting) // 1 ok
+	// fmt.println(size_of(lxb.lxb_dom_event_target_t)) // 1 ok
+	fmt.println("---------------------------------------")
+
 
 	// fmt.printf("dom_document: %x\n", document.dom_document) // no
 

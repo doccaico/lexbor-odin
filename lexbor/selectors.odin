@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // selectors module
 
 when ODIN_OS == .Windows {

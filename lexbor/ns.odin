@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // ns module
 
 when ODIN_OS == .Windows {

@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // dom module
 
 when ODIN_OS == .Windows {
@@ -70,6 +68,7 @@ lxb_dom_document_node_cb_t :: struct {
 	set_value: lxb_dom_node_cb_set_value_f,
 }
 
+// lxb_dom_document :: struct #align (align_of(uintptr)) {
 lxb_dom_document :: struct {
 	node:              lxb_dom_node_t,
 	compat_mode:       lxb_dom_document_cmode_t,

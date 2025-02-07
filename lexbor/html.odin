@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // html module
 
 when ODIN_OS == .Windows {

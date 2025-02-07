@@ -1,7 +1,5 @@
 package lexbor
 
-// all checked.
-
 // core module
 
 when ODIN_OS == .Windows {
