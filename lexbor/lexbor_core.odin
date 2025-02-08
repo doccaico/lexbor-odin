@@ -539,6 +539,13 @@ foreign lib {
 
 // lexbor/core/dtoa.h
 
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_dtoa :: proc(value: c.double, begin: [^]lxb_char_t, len: c.size_t) -> c.size_t ---
+}
+
+// lexbor/core/fs.h
+
 LEXBOR_HASH_SHORT_SIZE :: 16
 
 lexbor_str_t :: struct {
