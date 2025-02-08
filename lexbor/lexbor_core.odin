@@ -332,6 +332,8 @@ lexbor_conv_double_to_long :: proc "c" (number: c.double) -> c.long {
 
 // lexbor/core/def.h
 
+LEXBOR_MEM_ALIGN_STEP :: size_of(rawptr)
+
 // lexbor/core/diyfp.h
 
 lexbor_diyfp :: #force_inline proc "c" (_s: c.uint64_t, _e: c.int) -> lexbor_diyfp_t {
@@ -804,11 +806,10 @@ foreign lib {
 	lexbor_memory_setup :: proc(new_malloc: lexbor_memory_malloc_f, new_realloc: lexbor_memory_realloc_f, new_calloc: lexbor_memory_calloc_f, new_free: lexbor_memory_free_f) -> lxb_status_t ---
 }
 
+// lexbor/core/mem.h
 
-lexbor_str_t :: struct {
-	data:   [^]lxb_char_t,
-	length: c.size_t,
-}
+lexbor_mem_chunk_t :: lexbor_mem_chunk
+lexbor_mem_t :: lexbor_mem
 
 lexbor_mem_chunk :: struct {
 	data:   [^]c.uint8_t,
@@ -817,7 +818,6 @@ lexbor_mem_chunk :: struct {
 	next:   ^lexbor_mem_chunk_t,
 	prev:   ^lexbor_mem_chunk_t,
 }
-lexbor_mem_chunk_t :: lexbor_mem_chunk
 
 lexbor_mem :: struct {
 	chunk:          ^lexbor_mem_chunk_t,
@@ -825,8 +825,66 @@ lexbor_mem :: struct {
 	chunk_min_size: c.size_t,
 	chunk_length:   c.size_t,
 }
-lexbor_mem_t :: lexbor_mem
 
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_mem_create :: proc() -> ^lexbor_mem_t ---
+	lexbor_mem_init :: proc(mem: ^lexbor_mem_t, min_chunk_size: c.size_t) -> lxb_status_t ---
+	lexbor_mem_clean :: proc(mem: ^lexbor_mem_t) ---
+	lexbor_mem_destroy :: proc(mem: ^lexbor_mem_t, destroy_self: bool) -> ^lexbor_mem_t ---
+	lexbor_mem_chunk_init :: proc(mem: ^lexbor_mem_t, chunk: ^lexbor_mem_chunk_t, length: c.size_t) -> [^]c.int8_t ---
+	lexbor_mem_chunk_make :: proc(mem: ^lexbor_mem_t, length: c.size_t) -> ^lexbor_mem_chunk_t ---
+	lexbor_mem_chunk_destroy :: proc(mem: ^lexbor_mem_t, chunk: ^lexbor_mem_chunk_t, self_destroy: bool) -> ^lexbor_mem_chunk_t ---
+	lexbor_mem_alloc :: proc(mem: ^lexbor_mem_t, length: c.size_t) -> rawptr ---
+	lexbor_mem_calloc :: proc(mem: ^lexbor_mem_t, length: c.size_t) -> rawptr ---
+}
+
+lexbor_mem_current_length :: proc "c" (mem: ^lexbor_mem_t) -> c.size_t {
+	return mem.chunk.length
+}
+
+lexbor_mem_current_size :: proc "c" (mem: ^lexbor_mem_t) -> c.size_t {
+	return mem.chunk.size
+}
+
+lexbor_mem_chunk_length :: proc "c" (mem: ^lexbor_mem_t) -> c.size_t {
+	return mem.chunk_length
+}
+
+lexbor_mem_chunk_align :: proc "c" (size: c.size_t) -> c.size_t {
+	if (size % LEXBOR_MEM_ALIGN_STEP) != 0 {
+		return size + (LEXBOR_MEM_ALIGN_STEP - (size % LEXBOR_MEM_ALIGN_STEP))
+	}
+	return size
+}
+
+lexbor_mem_align_floor :: proc "c" (size: c.size_t) -> c.size_t {
+	if (size % LEXBOR_MEM_ALIGN_STEP) != 0 {
+		return size - (size % LEXBOR_MEM_ALIGN_STEP)
+	}
+	return size
+
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_mem_current_length_noi :: proc(mem: ^lexbor_mem_t) -> c.size_t ---
+	lexbor_mem_current_size_noi :: proc(mem: ^lexbor_mem_t) -> c.size_t ---
+	lexbor_mem_chunk_length_noi :: proc(mem: ^lexbor_mem_t) -> c.size_t ---
+	lexbor_mem_align_noi :: proc(size: c.size_t) -> c.size_t ---
+	lexbor_mem_align_floor_noi :: proc(size: c.size_t) -> c.size_t ---
+}
+
+// lexbor/core/mraw.h
+
+// TODO
+
+// lexbor/core/str.h
+
+lexbor_str_t :: struct {
+	data:   [^]lxb_char_t,
+	length: c.size_t,
+}
 
 // lexbor/core/types.h
 
@@ -851,10 +909,4 @@ lexbor_mraw_t :: struct {
 @(default_calling_convention = "c")
 foreign lib {
 	lexbor_mraw_free :: proc(mraw: ^lexbor_mraw_t, data: rawptr) -> rawptr ---
-}
-
-// Fucntions
-
-@(default_calling_convention = "c")
-foreign lib {
 }
