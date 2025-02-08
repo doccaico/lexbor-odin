@@ -373,6 +373,8 @@ foreign lib {
 	lexbor_cached_power_dec :: proc(exp: c.int, dec_exp: ^c.int) -> lexbor_diyfp_t ---
 	lexbor_cached_power_bin :: proc(exp: c.int, dec_exp: ^c.int) -> lexbor_diyfp_t ---
 }
+
+@(require_results)
 lexbor_diyfp_leading_zeros64 :: proc "c" (x: c.uint64_t) -> c.uint64_t {
 	n: c.uint64_t = ---
 
@@ -391,6 +393,7 @@ lexbor_diyfp_leading_zeros64 :: proc "c" (x: c.uint64_t) -> c.uint64_t {
 	return n
 }
 
+@(require_results)
 lexbor_diyfp_from_d2 :: proc "c" (d: c.double) -> lexbor_diyfp_t {
 	biased_exp: c.int = ---
 	significand: c.uint64_t = ---
@@ -417,6 +420,7 @@ lexbor_diyfp_from_d2 :: proc "c" (d: c.double) -> lexbor_diyfp_t {
 	return r
 }
 
+@(require_results)
 lexbor_diyfp_2d :: proc "c" (v: lexbor_diyfp_t) -> c.double {
 	exp: c.int = ---
 	significand: c.uint64_t = ---
@@ -460,18 +464,22 @@ lexbor_diyfp_2d :: proc "c" (v: lexbor_diyfp_t) -> c.double {
 	return u.d
 }
 
+@(require_results)
 lexbor_diyfp_shift_left :: proc "c" (v: lexbor_diyfp_t, shift: c.uint) -> lexbor_diyfp_t {
 	return lexbor_diyfp(v.significand << shift, v.exp - c.int(shift))
 }
 
+@(require_results)
 lexbor_diyfp_shift_right :: proc "c" (v: lexbor_diyfp_t, shift: c.uint) -> lexbor_diyfp_t {
 	return lexbor_diyfp(v.significand >> shift, v.exp + c.int(shift))
 }
 
+@(require_results)
 lexbor_diyfp_sub :: proc "c" (lhs: lexbor_diyfp_t, rhs: lexbor_diyfp_t) -> lexbor_diyfp_t {
 	return lexbor_diyfp(lhs.significand - rhs.significand, lhs.exp)
 }
 
+@(require_results)
 lexbor_diyfp_mul :: proc "c" (lhs: lexbor_diyfp_t, rhs: lexbor_diyfp_t) -> lexbor_diyfp_t {
 	a: c.uint64_t = ---
 	b: c.uint64_t = ---
@@ -500,6 +508,7 @@ lexbor_diyfp_mul :: proc "c" (lhs: lexbor_diyfp_t, rhs: lexbor_diyfp_t) -> lexbo
 	return lexbor_diyfp(ac + (ad >> 32) + (bc >> 32) + (tmp >> 32), lhs.exp + rhs.exp + 64)
 }
 
+@(require_results)
 lexbor_diyfp_normalize :: proc "c" (v: lexbor_diyfp_t) -> lexbor_diyfp_t {
 	return lexbor_diyfp_shift_left(v, c.uint(lexbor_diyfp_leading_zeros64(v.significand)))
 }
@@ -525,10 +534,12 @@ foreign lib {
 	lexbor_dobject_absolute_position :: proc(dobject: ^lexbor_dobject_t, pos: c.size_t) -> rawptr ---
 }
 
+@(require_results)
 lexbor_dobject_allocated :: proc "c" (dobject: ^lexbor_dobject_t) -> c.size_t {
 	return dobject.allocated
 }
 
+@(require_results)
 lexbor_dobject_cache_length :: proc "c" (dobject: ^lexbor_dobject_t) -> c.size_t {
 	return lexbor_array_length(dobject.cache)
 }
@@ -657,10 +668,12 @@ foreign lib {
 	lexbor_hash_copy_upper :: proc(hash: ^lexbor_hash_t, entry: ^lexbor_hash_entry_t, key: [^]lxb_char_t, length: c.size_t) -> lxb_status_t ---
 }
 
+@(require_results)
 lexbor_hash_mraw :: proc "c" (hash: ^lexbor_hash_t) -> ^lexbor_mraw_t {
 	return hash.mraw
 }
 
+@(require_results)
 lexbor_hash_entry_str :: proc "c" (entry: ^lexbor_hash_entry_t) -> [^]lxb_char_t {
 	if entry.length <= LEXBOR_HASH_SHORT_SIZE {
 		return &entry.u.short_str[0]
@@ -669,6 +682,7 @@ lexbor_hash_entry_str :: proc "c" (entry: ^lexbor_hash_entry_t) -> [^]lxb_char_t
 	return entry.u.long_str
 }
 
+@(require_results)
 lexbor_hash_entry_str_set :: proc "c" (
 	entry: ^lexbor_hash_entry_t,
 	data: [^]lxb_char_t,
@@ -693,10 +707,12 @@ lexbor_hash_entry_str_free :: proc "c" (hash: ^lexbor_hash_t, entry: ^lexbor_has
 	entry.length = 0
 }
 
+@(require_results)
 lexbor_hash_entry_create :: proc "c" (hash: ^lexbor_hash_t) -> ^lexbor_hash_entry_t {
 	return (^lexbor_hash_entry_t)(lexbor_dobject_calloc(hash.entries))
 }
 
+@(require_results)
 lexbor_hash_entry_destroy :: proc "c" (
 	hash: ^lexbor_hash_t,
 	entry: ^lexbor_hash_entry_t,
@@ -704,6 +720,7 @@ lexbor_hash_entry_destroy :: proc "c" (
 	return (^lexbor_hash_entry_t)(lexbor_dobject_free(hash.entries, entry))
 }
 
+@(require_results)
 lexbor_hash_entries_count :: proc "c" (hash: ^lexbor_hash_t) -> c.size_t {
 	return lexbor_dobject_allocated(hash.entries)
 }
@@ -751,30 +768,37 @@ foreign lib {
 	lexbor_in_node_pos_down :: proc(node: ^lexbor_in_node_t, return_node: ^^lexbor_in_node_t, pos: [^]lxb_char_t, offset: c.size_t) -> [^]lxb_char_t ---
 }
 
+@(require_results)
 lexbor_in_node_begin :: proc "c" (node: ^lexbor_in_node_t) -> [^]lxb_char_t {
 	return node.begin
 }
 
+@(require_results)
 lexbor_in_node_end :: proc "c" (node: ^lexbor_in_node_t) -> [^]lxb_char_t {
 	return node.end
 }
 
+@(require_results)
 lexbor_in_node_offset :: proc "c" (node: ^lexbor_in_node_t) -> c.size_t {
 	return node.offset
 }
 
+@(require_results)
 lexbor_in_node_next :: proc "c" (node: ^lexbor_in_node_t) -> ^lexbor_in_node_t {
 	return node.next
 }
 
+@(require_results)
 lexbor_in_node_prev :: proc "c" (node: ^lexbor_in_node_t) -> ^lexbor_in_node_t {
 	return node.prev
 }
 
+@(require_results)
 lexbor_in_node_in :: proc "c" (node: ^lexbor_in_node_t) -> ^lexbor_in_t {
 	return node.incoming
 }
 
+@(require_results)
 lexbor_in_segment :: proc "c" (node: ^lexbor_in_node_t, data: [^]lxb_char_t) -> bool {
 	return node.begin <= data && node.end >= data
 }
@@ -839,18 +863,22 @@ foreign lib {
 	lexbor_mem_calloc :: proc(mem: ^lexbor_mem_t, length: c.size_t) -> rawptr ---
 }
 
+@(require_results)
 lexbor_mem_current_length :: proc "c" (mem: ^lexbor_mem_t) -> c.size_t {
 	return mem.chunk.length
 }
 
+@(require_results)
 lexbor_mem_current_size :: proc "c" (mem: ^lexbor_mem_t) -> c.size_t {
 	return mem.chunk.size
 }
 
+@(require_results)
 lexbor_mem_chunk_length :: proc "c" (mem: ^lexbor_mem_t) -> c.size_t {
 	return mem.chunk_length
 }
 
+@(require_results)
 lexbor_mem_chunk_align :: proc "c" (size: c.size_t) -> c.size_t {
 	if (size % LEXBOR_MEM_ALIGN_STEP) != 0 {
 		return size + (LEXBOR_MEM_ALIGN_STEP - (size % LEXBOR_MEM_ALIGN_STEP))
@@ -858,6 +886,7 @@ lexbor_mem_chunk_align :: proc "c" (size: c.size_t) -> c.size_t {
 	return size
 }
 
+@(require_results)
 lexbor_mem_align_floor :: proc "c" (size: c.size_t) -> c.size_t {
 	if (size % LEXBOR_MEM_ALIGN_STEP) != 0 {
 		return size - (size % LEXBOR_MEM_ALIGN_STEP)
