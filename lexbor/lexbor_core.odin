@@ -584,6 +584,129 @@ foreign lib {
 // lexbor/core/hash.h
 
 LEXBOR_HASH_SHORT_SIZE :: 16
+LEXBOR_HASH_TABLE_MIN_SIZE :: 32
+
+lexbor_hash_search_t :: lexbor_hash_search_
+lexbor_hash_insert_t :: lexbor_hash_insert_
+
+lexbor_hash_t :: lexbor_hash
+lexbor_hash_entry_t :: lexbor_hash_entry
+
+lexbor_hash_id_f :: #type proc "c" (key: [^]lxb_char_t, size: c.size_t) -> c.uint32_t
+
+lexbor_hash_copy_f :: #type proc "c" (
+	hash: ^lexbor_hash_t,
+	entry: ^lexbor_hash_entry_t,
+	key: [^]lxb_char_t,
+	size: c.size_t,
+) -> lxb_status_t
+
+lexbor_hash_cmp_f :: #type proc "c" (
+	first: [^]lxb_char_t,
+	second: [^]lxb_char_t,
+	size: c.size_t,
+) -> bool
+
+lexbor_hash_entry :: struct {
+	u:      struct #raw_union {
+		long_str:  [^]lxb_char_t,
+		short_str: [LEXBOR_HASH_SHORT_SIZE + 1]lxb_char_t,
+	},
+	length: c.size_t,
+	next:   ^lexbor_hash_entry_t,
+}
+
+lexbor_hash :: struct {
+	entries:     ^lexbor_dobject_t,
+	mraw:        ^lexbor_mraw_t,
+	table:       ^^lexbor_hash_entry_t,
+	table_size:  c.size_t,
+	struct_size: c.size_t,
+}
+
+lexbor_hash_insert_ :: struct {
+	hash: lexbor_hash_id_f,
+	cmp:  lexbor_hash_cmp_f,
+	copy: lexbor_hash_copy_f,
+}
+
+lexbor_hash_search_ :: struct {
+	hash: lexbor_hash_id_f,
+	cmp:  lexbor_hash_cmp_f,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_hash_create :: proc() -> ^lexbor_hash_t ---
+	lexbor_hash_init :: proc(hash: ^lexbor_hash_t, table_size: c.size_t, struct_size: c.size_t) -> lxb_status_t ---
+	lexbor_hash_clean :: proc(hash: ^lexbor_hash_t) ---
+	lexbor_hash_destroy :: proc(hash: ^lexbor_hash_t, destroy_obj: bool) -> ^lexbor_hash_t ---
+	lexbor_hash_insert :: proc(hash: ^lexbor_hash_t, insert: ^lexbor_hash_insert_t, key: [^]lxb_char_t, length: c.size_t) -> rawptr ---
+	lexbor_hash_insert_by_entry :: proc(hash: ^lexbor_hash_t, entry: ^lexbor_hash_entry_t, search: ^lexbor_hash_search_t, key: [^]lxb_char_t, length: c.size_t) -> rawptr ---
+	lexbor_hash_remove :: proc(hash: ^lexbor_hash_t, search: ^lexbor_hash_search_t, key: [^]lxb_char_t, length: c.size_t) ---
+	lexbor_hash_search :: proc(hash: ^lexbor_hash_t, search: ^lexbor_hash_search_t, key: [^]lxb_char_t, length: c.size_t) -> rawptr ---
+	lexbor_hash_remove_by_hash_id :: proc(hash: ^lexbor_hash_t, hash_id: c.uint32_t, key: [^]lxb_char_t, length: c.size_t, cmp_func: lexbor_hash_cmp_f) ---
+	lexbor_hash_search_by_hash_id :: proc(hash: ^lexbor_hash_t, hash_id: c.uint32_t, key: [^]lxb_char_t, length: c.size_t, cmp_func: lexbor_hash_cmp_f) -> rawptr ---
+	lexbor_hash_make_id :: proc(key: [^]lxb_char_t, length: c.size_t) -> c.uint32_t ---
+	lexbor_hash_make_id_lower :: proc(key: [^]lxb_char_t, length: c.size_t) -> c.uint32_t ---
+	lexbor_hash_make_id_upper :: proc(key: [^]lxb_char_t, length: c.size_t) -> c.uint32_t ---
+	lexbor_hash_copy :: proc(hash: ^lexbor_hash_t, entry: ^lexbor_hash_entry_t, key: [^]lxb_char_t, length: c.size_t) -> lxb_status_t ---
+	lexbor_hash_copy_lower :: proc(hash: ^lexbor_hash_t, entry: ^lexbor_hash_entry_t, key: [^]lxb_char_t, length: c.size_t) -> lxb_status_t ---
+	lexbor_hash_copy_upper :: proc(hash: ^lexbor_hash_t, entry: ^lexbor_hash_entry_t, key: [^]lxb_char_t, length: c.size_t) -> lxb_status_t ---
+}
+
+lexbor_hash_mraw :: proc "c" (hash: ^lexbor_hash_t) -> ^lexbor_mraw_t {
+	return hash.mraw
+}
+
+lexbor_hash_entry_str :: proc "c" (entry: ^lexbor_hash_entry_t) -> [^]lxb_char_t {
+	if entry.length <= LEXBOR_HASH_SHORT_SIZE {
+		return &entry.u.short_str[0]
+	}
+
+	return entry.u.long_str
+}
+
+lexbor_hash_entry_str_set :: proc "c" (
+	entry: ^lexbor_hash_entry_t,
+	data: [^]lxb_char_t,
+	length: c.size_t,
+) -> [^]lxb_char_t {
+	entry.length = length
+
+	if length <= LEXBOR_HASH_SHORT_SIZE {
+		libc.memcpy(&entry.u.short_str[0], data, length)
+		return &entry.u.short_str[0]
+	}
+
+	entry.u.long_str = data
+	return entry.u.long_str
+}
+
+lexbor_hash_entry_str_free :: proc "c" (hash: ^lexbor_hash_t, entry: ^lexbor_hash_entry_t) {
+	if entry.length > LEXBOR_HASH_SHORT_SIZE {
+		lexbor_mraw_free(hash.mraw, entry.u.long_str)
+	}
+
+	entry.length = 0
+}
+
+lexbor_hash_entry_create :: proc "c" (hash: ^lexbor_hash_t) -> ^lexbor_hash_entry_t {
+	return (^lexbor_hash_entry_t)(lexbor_dobject_calloc(hash.entries))
+}
+
+lexbor_hash_entry_destroy :: proc "c" (
+	hash: ^lexbor_hash_t,
+	entry: ^lexbor_hash_entry_t,
+) -> ^lexbor_hash_entry_t {
+	return (^lexbor_hash_entry_t)(lexbor_dobject_free(hash.entries, entry))
+}
+
+lexbor_hash_entries_count :: proc "c" (hash: ^lexbor_hash_t) -> c.size_t {
+	return lexbor_dobject_allocated(hash.entries)
+}
+
+// lexbor/core/in.h
 
 lexbor_str_t :: struct {
 	data:   [^]lxb_char_t,
@@ -607,30 +730,6 @@ lexbor_mem :: struct {
 }
 lexbor_mem_t :: lexbor_mem
 
-lexbor_mraw_t :: struct {
-	mem:       ^lexbor_mem_t,
-	cache:     ^lexbor_bst_t,
-	ref_count: c.size_t,
-}
-
-lexbor_hash :: struct {
-	entries:     ^lexbor_dobject_t,
-	mraw:        ^lexbor_mraw_t,
-	table:       ^^lexbor_hash_entry_t,
-	table_size:  c.size_t,
-	struct_size: c.size_t,
-}
-lexbor_hash_t :: lexbor_hash
-
-lexbor_hash_entry :: struct {
-	u:      struct #raw_union {
-		long_str:  [^]lxb_char_t,
-		short_str: [LEXBOR_HASH_SHORT_SIZE + 1]lxb_char_t,
-	},
-	length: c.size_t,
-	next:   ^lexbor_hash_entry_t,
-}
-lexbor_hash_entry_t :: lexbor_hash_entry
 
 // lexbor/core/types.h
 
@@ -643,6 +742,19 @@ lexbor_callback_f :: #type proc "c" (
 	size: c.size_t,
 	ctx: rawptr,
 ) -> lxb_status_t
+
+// lexbor/core/mraw.h
+
+lexbor_mraw_t :: struct {
+	mem:       ^lexbor_mem_t,
+	cache:     ^lexbor_bst_t,
+	ref_count: c.size_t,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_mraw_free :: proc(mraw: ^lexbor_mraw_t, data: rawptr) -> rawptr ---
+}
 
 // Fucntions
 
