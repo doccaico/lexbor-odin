@@ -504,6 +504,41 @@ lexbor_diyfp_normalize :: proc "c" (v: lexbor_diyfp_t) -> lexbor_diyfp_t {
 
 // lexbor/core/dobject.h
 
+lexbor_dobject_t :: struct {
+	mem:         ^lexbor_mem_t,
+	cache:       ^lexbor_array_t,
+	allocated:   c.size_t,
+	struct_size: c.size_t,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_dobject_create :: proc() -> ^lexbor_dobject_t ---
+	lexbor_dobject_init :: proc(dobject: ^lexbor_dobject_t, chunk_size: c.size_t, struct_size: c.size_t) -> lxb_status_t ---
+	lexbor_dobject_clean :: proc(dobject: ^lexbor_dobject_t) ---
+	lexbor_dobject_init_list_entries :: proc(dobject: ^lexbor_dobject_t, pos: c.size_t) -> ^c.uint8_t ---
+	lexbor_dobject_alloc :: proc(dobject: ^lexbor_dobject_t) -> rawptr ---
+	lexbor_dobject_calloc :: proc(dobject: ^lexbor_dobject_t) -> rawptr ---
+	lexbor_dobject_free :: proc(dobject: ^lexbor_dobject_t, data: rawptr) -> rawptr ---
+	lexbor_dobject_absolute_position :: proc(dobject: ^lexbor_dobject_t, pos: c.size_t) -> rawptr ---
+}
+
+lexbor_dobject_allocated :: proc "c" (dobject: ^lexbor_dobject_t) -> c.size_t {
+	return dobject.allocated
+}
+
+lexbor_dobject_cache_length :: proc "c" (dobject: ^lexbor_dobject_t) -> c.size_t {
+	return lexbor_array_length(dobject.cache)
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_dobject_allocated_noi :: proc(dobject: ^lexbor_dobject_t) -> c.size_t ---
+	lexbor_dobject_cache_length_noi :: proc(dobject: ^lexbor_dobject_t) -> c.size_t ---
+}
+
+// lexbor/core/dtoa.h
+
 LEXBOR_HASH_SHORT_SIZE :: 16
 
 lexbor_str_t :: struct {
@@ -532,13 +567,6 @@ lexbor_mraw_t :: struct {
 	mem:       ^lexbor_mem_t,
 	cache:     ^lexbor_bst_t,
 	ref_count: c.size_t,
-}
-
-lexbor_dobject_t :: struct {
-	mem:         ^lexbor_mem_t,
-	cache:       ^lexbor_array_t,
-	allocated:   c.size_t,
-	struct_size: c.size_t,
 }
 
 lexbor_hash :: struct {
