@@ -3,7 +3,7 @@ package main
 import "core:fmt"
 import "core:os"
 
-import lb "./lexbor"
+import lb "../lexbor"
 
 main :: proc() {
 	html := "<div>Works fine!</div>"

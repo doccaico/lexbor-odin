@@ -1,10 +1,123 @@
 package lexbor
 
-// core module
-
 import "core:c"
+import "core:c/libc"
 
-// Define
+// lexbor/core/array.h
+
+lexbor_array_t :: struct {
+	list:   [^]rawptr,
+	size:   c.size_t,
+	length: c.size_t,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_array_create :: proc() -> ^lexbor_array_t ---
+	lexbor_array_init :: proc(array: ^lexbor_array_t, size: c.size_t) -> lxb_status_t ---
+	lexbor_array_clean :: proc(array: ^lexbor_array_t) ---
+	lexbor_array_destroy :: proc(array: ^lexbor_array_t, self_destroy: bool) -> ^lexbor_array_t ---
+	lexbor_array_expand :: proc(array: ^lexbor_array_t, up_to: c.size_t) -> ^rawptr ---
+	lexbor_array_push :: proc(array: ^lexbor_array_t, value: rawptr) -> lxb_status_t ---
+	lexbor_array_pop :: proc(array: ^lexbor_array_t) -> ^rawptr ---
+	lexbor_array_insert :: proc(array: ^lexbor_array_t, idx: c.size_t, value: rawptr) -> lxb_status_t ---
+	lexbor_array_set :: proc(array: ^lexbor_array_t, idx: c.size_t, value: rawptr) -> lxb_status_t ---
+	lexbor_array_delete :: proc(array: ^lexbor_array_t, begin: c.size_t, length: c.size_t) ---
+}
+
+@(require_results)
+lexbor_array_get :: proc "c" (array: ^lexbor_array_t, idx: c.size_t) -> rawptr {
+	if (idx >= array.length) {
+		return nil
+	}
+	return array.list[idx]
+}
+
+@(require_results)
+lexbor_array_length :: proc "c" (array: ^lexbor_array_t) -> c.size_t {
+	return array.length
+}
+
+@(require_results)
+lexbor_array_size :: proc "c" (array: ^lexbor_array_t) -> c.size_t {
+	return array.size
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_array_get_noi :: proc(array: ^lexbor_array_t, idx: c.size_t) -> rawptr ---
+	lexbor_array_length_noi :: proc(array: ^lexbor_array_t) -> c.size_t ---
+	lexbor_array_size_noi :: proc(array: ^lexbor_array_t) -> c.size_t ---
+}
+
+// lexbor/core/array_obj.h
+
+lexbor_array_obj_t :: struct {
+	list:        [^]c.uint8_t,
+	size:        c.size_t,
+	length:      c.size_t,
+	struct_size: c.size_t,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_array_obj_create :: proc() -> ^lexbor_array_obj_t ---
+	lexbor_array_obj_init :: proc(array: ^lexbor_array_obj_t, size: c.size_t, struct_size: c.size_t) -> ^lexbor_array_obj_t ---
+	lexbor_array_obj_clean :: proc(array: ^lexbor_array_obj_t) ---
+	lexbor_array_obj_destroy :: proc(array: ^lexbor_array_obj_t, self_destroy: bool) -> ^lexbor_array_obj_t ---
+	lexbor_array_obj_expand :: proc(array: ^lexbor_array_obj_t, up_to: c.size_t) -> ^c.uint8_t ---
+	lexbor_array_obj_push :: proc(array: ^lexbor_array_obj_t) -> rawptr ---
+	lexbor_array_obj_push_wo_cls :: proc(array: ^lexbor_array_obj_t) -> rawptr ---
+	lexbor_array_obj_push_n :: proc(array: ^lexbor_array_obj_t, count: c.size_t) -> rawptr ---
+	lexbor_array_obj_pop :: proc(array: ^lexbor_array_obj_t) -> rawptr ---
+	lexbor_array_obj_delete :: proc(array: ^lexbor_array_obj_t, begin: c.size_t, length: c.size_t) ---
+}
+
+lexbor_array_obj_erase :: proc "c" (array: ^lexbor_array_obj_t) {
+	libc.memset(array, 0, size_of(lexbor_array_obj_t))
+}
+
+@(require_results)
+lexbor_array_obj_get :: proc "c" (array: ^lexbor_array_obj_t, idx: c.size_t) -> rawptr {
+	if (idx >= array.length) {
+		return nil
+	}
+	return &array.list[idx * array.struct_size]
+}
+
+@(require_results)
+lexbor_array_obj_length :: proc "c" (array: ^lexbor_array_obj_t) -> c.size_t {
+	return array.length
+}
+
+@(require_results)
+lexbor_array_obj_size :: proc "c" (array: ^lexbor_array_obj_t) -> c.size_t {
+	return array.size
+}
+
+@(require_results)
+lexbor_array_obj_struct_size :: proc "c" (array: ^lexbor_array_obj_t) -> c.size_t {
+	return array.struct_size
+}
+
+@(require_results)
+lexbor_array_obj_last :: proc "c" (array: ^lexbor_array_obj_t) -> rawptr {
+	if (array.length == 0) {
+		return nil
+	}
+	return &array.list[(array.length - 1) * array.struct_size]
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_array_obj_erase_noi :: proc() ---
+	lexbor_array_obj_get_noi :: proc(array: ^lexbor_array_obj_t, idx: c.size_t) -> rawptr ---
+	lexbor_array_obj_length_noi :: proc(array: ^lexbor_array_obj_t) -> c.size_t ---
+	lexbor_array_obj_size_noi :: proc(array: ^lexbor_array_obj_t) -> c.size_t ---
+	lexbor_array_obj_struct_size_noi :: proc(array: ^lexbor_array_obj_t) -> c.size_t ---
+	lexbor_array_obj_last_noi :: proc(array: ^lexbor_array_obj_t) -> rawptr ---
+}
+
 
 LEXBOR_HASH_SHORT_SIZE :: 16
 
@@ -39,11 +152,11 @@ lexbor_mraw_t :: struct {
 	ref_count: c.size_t,
 }
 
-lexbor_array_t :: struct {
-	list:   ^rawptr,
-	size:   c.size_t,
-	length: c.size_t,
-}
+// lexbor_array_t :: struct {
+// 	list:   ^rawptr,
+// 	size:   c.size_t,
+// 	length: c.size_t,
+// }
 
 lexbor_dobject_t :: struct {
 	mem:         ^lexbor_mem_t,
@@ -97,13 +210,6 @@ lexbor_avl_node :: struct {
 	parent: ^lexbor_avl_node_t,
 }
 lexbor_avl_node_t :: lexbor_avl_node
-
-lexbor_array_obj_t :: struct {
-	list:        ^c.uint8_t,
-	size:        c.size_t,
-	length:      c.size_t,
-	struct_size: c.size_t,
-}
 
 lexbor_avl :: struct {
 	nodes:      ^lexbor_dobject_t,

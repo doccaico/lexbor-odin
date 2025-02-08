@@ -66,4 +66,5 @@ foreign lib {
 	lxb_html_document_create :: proc() -> ^lxb_html_document_t ---
 	lxb_html_document_destroy :: proc(document: ^lxb_html_document_t) -> ^lxb_html_document_t ---
 	lxb_html_document_parse :: proc(document: ^lxb_html_document_t, html: [^]lxb_char_t, size: c.size_t) -> lxb_status_t ---
+	// lxb_html_document_parse :: proc(document: ^lxb_html_document_t, html: [^]lxb_char_t, size: c.size_t) -> lxb_status_t ---
 }
