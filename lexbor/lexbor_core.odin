@@ -305,6 +305,35 @@ foreign lib {
 
 // lexbor/core/conv.h
 
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_conv_float_to_data :: proc(num: c.double, buf: [^]lxb_char_t, len: c.size_t) -> c.size_t ---
+	lexbor_conv_log_to_data :: proc(num: c.long, buf: [^]lxb_char_t, len: c.size_t) -> c.size_t ---
+	lexbor_conv_int64_to_data :: proc(num: c.int64_t, buf: [^]lxb_char_t, len: c.size_t) -> c.size_t ---
+	lexbor_conv_data_to_double :: proc(start: ^[^]lxb_char_t, len: c.size_t) -> c.double ---
+	lexbor_conv_data_to_ulong :: proc(data: ^[^]lxb_char_t, length: c.size_t) -> c.ulong ---
+	lexbor_conv_data_to_long :: proc(data: ^[^]lxb_char_t, length: c.size_t) -> c.long ---
+	lexbor_conv_data_to_uint :: proc(data: ^[^]lxb_char_t, length: c.size_t) -> c.uint ---
+	lexbor_conv_dec_to_hex :: proc(number: c.uint32_t, out: [^]lxb_char_t, length: c.size_t) -> c.size_t ---
+}
+
+@(require_results)
+lexbor_conv_double_to_long :: proc "c" (number: c.double) -> c.long {
+	if (number > c.double(max(c.long))) {
+		return max(c.long)
+	}
+	if (number < c.double(min(c.long))) {
+		return -max(c.long)
+	}
+	return c.long(number)
+}
+
+// lexbor/core/core.h
+
+// lexbor/core/def.h
+
+// lexbor/core/diyfp.h
+
 LEXBOR_HASH_SHORT_SIZE :: 16
 
 lexbor_str_t :: struct {
