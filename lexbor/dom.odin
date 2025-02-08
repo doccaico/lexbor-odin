@@ -78,7 +78,10 @@ lxb_dom_document :: struct {
 	create_interface:  lxb_dom_interface_create_f,
 	clone_interface:   lxb_dom_interface_clone_f,
 	destroy_interface: lxb_dom_interface_destroy_f,
-	node_cb:           ^lxb_dom_document_node_cb_t,
+	ev_insert:         lxb_dom_event_insert_f,
+	ev_remove:         lxb_dom_event_remove_f,
+	ev_destroy:        lxb_dom_event_destroy_f,
+	ev_set_value:      lxb_dom_event_set_value_f,
 	mraw:              ^lexbor_mraw_t,
 	text:              ^lexbor_mraw_t,
 	tags:              ^lexbor_hash_t,
@@ -162,6 +165,14 @@ lxb_dom_attr :: struct {
 }
 lxb_dom_attr_t :: lxb_dom_attr
 
+lxb_dom_event_insert_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
+lxb_dom_event_remove_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
+lxb_dom_event_destroy_f :: #type proc "c" (node: ^lxb_dom_node_t) -> lxb_status_t
+lxb_dom_event_set_value_f :: #type proc "c" (
+	node: ^lxb_dom_node_t,
+	value: [^]lxb_char_t,
+	length: c.size_t,
+) -> lxb_status_t
 
 dom_interface_element :: #force_inline proc "c" (obj: rawptr) -> ^lxb_dom_element_t {
 	return cast(^lxb_dom_element_t)obj
