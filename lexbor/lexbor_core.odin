@@ -270,6 +270,41 @@ foreign lib {
 
 // lexbor/core/bst_map.h
 
+lexbor_bst_map_entry_t :: struct {
+	str:   lexbor_str_t,
+	value: rawptr,
+}
+
+lexbor_bst_map_t :: struct {
+	bst:     ^lexbor_bst_t,
+	mraw:    ^lexbor_mraw_t,
+	entries: ^lexbor_dobject_t,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_bst_map_create :: proc() -> lexbor_bst_map_t ---
+	lexbor_bst_map_init :: proc(bst_map: ^lexbor_bst_map_t, size: c.size_t) -> lxb_status_t ---
+	lexbor_bst_map_clean :: proc(bst_map: ^lexbor_bst_map_t, size: c.size_t) ---
+	lexbor_bst_map_destroy :: proc(bst_map: ^lexbor_bst_map_t, self_destroy: bool) -> ^lexbor_bst_map_t ---
+	lexbor_bst_map_search :: proc(bst_map: ^lexbor_bst_map_t, scope: ^lexbor_bst_entry_t, key: [^]lxb_char_t, key_len: c.size_t) -> ^lexbor_bst_map_entry_t ---
+	lexbor_bst_map_insert :: proc(bst_map: ^lexbor_bst_map_t, scope: ^^lexbor_bst_entry_t, key: [^]lxb_char_t, key_len: c.size_t, value: rawptr) -> ^lexbor_bst_map_entry_t ---
+	lexbor_bst_map_insert_not_exists :: proc(bst_map: ^lexbor_bst_map_t, scope: ^^lexbor_bst_entry_t, key: [^]lxb_char_t, key_len: c.size_t) -> ^lexbor_bst_map_entry_t ---
+	lexbor_bst_map_remove :: proc(bst_map: ^lexbor_bst_map_t, scope: ^^lexbor_bst_entry_t, key: [^]lxb_char_t, key_len: c.size_t) -> rawptr ---
+}
+
+@(require_results)
+lexbor_bst_map_mraw :: proc "c" (bst_map: ^lexbor_bst_map_t) -> ^lexbor_mraw_t {
+	return bst_map.mraw
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_bst_map_mraw_noi :: proc(bst_map: ^lexbor_bst_map_t) -> ^lexbor_mraw_t ---
+}
+
+// lexbor/core/conv.h
+
 LEXBOR_HASH_SHORT_SIZE :: 16
 
 lexbor_str_t :: struct {
@@ -299,12 +334,6 @@ lexbor_mraw_t :: struct {
 	cache:     ^lexbor_bst_t,
 	ref_count: c.size_t,
 }
-
-// lexbor_array_t :: struct {
-// 	list:   ^rawptr,
-// 	size:   c.size_t,
-// 	length: c.size_t,
-// }
 
 lexbor_dobject_t :: struct {
 	mem:         ^lexbor_mem_t,
@@ -339,7 +368,7 @@ lxb_char_t :: c.uchar
 lxb_status_t :: c.uint
 
 lexbor_callback_f :: #type proc "c" (
-	buffer: ^lxb_char_t,
+	buffer: [^]lxb_char_t,
 	size: c.size_t,
 	ctx: rawptr,
 ) -> lxb_status_t
