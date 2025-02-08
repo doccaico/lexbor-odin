@@ -546,6 +546,43 @@ foreign lib {
 
 // lexbor/core/fs.h
 
+lexbor_fs_dir_file_f :: #type proc "c" (
+	fullpath: [^]lxb_char_t,
+	fullpath_len: c.size_t,
+	filename: [^]lxb_char_t,
+	filename_len: c.size_t,
+	ctx: rawptr,
+) -> lexbor_action_t
+
+lexbor_fs_dir_opt_t :: c.int
+
+lexbor_fs_dir_opt :: enum c.int {
+	LEXBOR_FS_DIR_OPT_UNDEF          = 0x00,
+	LEXBOR_FS_DIR_OPT_WITHOUT_DIR    = 0x01,
+	LEXBOR_FS_DIR_OPT_WITHOUT_FILE   = 0x02,
+	LEXBOR_FS_DIR_OPT_WITHOUT_HIDDEN = 0x04,
+}
+
+lexbor_fs_file_type_t :: enum c.int {
+	LEXBOR_FS_FILE_TYPE_UNDEF            = 0x00,
+	LEXBOR_FS_FILE_TYPE_FILE             = 0x01,
+	LEXBOR_FS_FILE_TYPE_DIRECTORY        = 0x02,
+	LEXBOR_FS_FILE_TYPE_BLOCK_DEVICE     = 0x03,
+	LEXBOR_FS_FILE_TYPE_CHARACTER_DEVICE = 0x04,
+	LEXBOR_FS_FILE_TYPE_PIPE             = 0x05,
+	LEXBOR_FS_FILE_TYPE_SYMLINK          = 0x06,
+	LEXBOR_FS_FILE_TYPE_SOCKET           = 0x07,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_fs_dir_read :: proc(dirpath: [^]lxb_char_t, opt: lexbor_fs_dir_opt_t, callback: lexbor_fs_dir_file_f, ctx: rawptr) -> lxb_status_t ---
+	lexbor_fs_file_type :: proc(full_path: [^]lxb_char_t) -> lexbor_fs_file_type_t ---
+	lexbor_fs_file_easy_read :: proc(full_path: [^]lxb_char_t, len: ^c.size_t) -> [^]lxb_char_t ---
+}
+
+// lexbor/core/hash.h
+
 LEXBOR_HASH_SHORT_SIZE :: 16
 
 lexbor_str_t :: struct {
