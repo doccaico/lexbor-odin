@@ -790,6 +790,21 @@ foreign lib {
 
 // lexbor/core/lexbor.h
 
+lexbor_memory_malloc_f :: #type proc "c" (size: c.size_t) -> rawptr
+lexbor_memory_realloc_f :: #type proc "c" (dst: rawptr, size: c.size_t) -> rawptr
+lexbor_memory_calloc_f :: #type proc "c" (num: c.size_t, size: c.size_t) -> rawptr
+lexbor_memory_free_f :: #type proc "c" (dst: rawptr)
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_malloc :: proc(size: c.size_t) -> rawptr ---
+	lexbor_realloc :: proc(dst: rawptr, size: c.size_t) -> rawptr ---
+	lexbor_calloc :: proc(num: c.size_t, size: c.size_t) -> rawptr ---
+	lexbor_free :: proc(dst: rawptr) -> rawptr ---
+	lexbor_memory_setup :: proc(new_malloc: lexbor_memory_malloc_f, new_realloc: lexbor_memory_realloc_f, new_calloc: lexbor_memory_calloc_f, new_free: lexbor_memory_free_f) -> lxb_status_t ---
+}
+
+
 lexbor_str_t :: struct {
 	data:   [^]lxb_char_t,
 	length: c.size_t,
