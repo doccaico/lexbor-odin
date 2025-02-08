@@ -334,6 +334,176 @@ lexbor_conv_double_to_long :: proc "c" (number: c.double) -> c.long {
 
 // lexbor/core/diyfp.h
 
+lexbor_diyfp :: #force_inline proc "c" (_s: c.uint64_t, _e: c.int) -> lexbor_diyfp_t {
+	return lexbor_diyfp_t{_s, _e}
+}
+lexbor_uint64_hl :: #force_inline proc "c" (h: c.uint64_t, l: c.uint64_t) -> c.uint64_t {
+	return (h << 32) + l
+}
+
+LEXBOR_DBL_SIGNIFICAND_SIZE :: 52
+LEXBOR_DBL_EXPONENT_BIAS :: (0x3FF + LEXBOR_DBL_SIGNIFICAND_SIZE)
+LEXBOR_DBL_EXPONENT_MIN :: (-LEXBOR_DBL_EXPONENT_BIAS)
+LEXBOR_DBL_EXPONENT_MAX :: (0x7FF - LEXBOR_DBL_EXPONENT_BIAS)
+LEXBOR_DBL_EXPONENT_DENORMAL :: (-LEXBOR_DBL_EXPONENT_BIAS + 1)
+
+LEXBOR_DBL_SIGNIFICAND_MASK :: (0x000FFFFF << 32) + 0xFFFFFFFF
+LEXBOR_DBL_HIDDEN_BIT :: (0x00100000 << 32) + 0x00000000
+LEXBOR_DBL_EXPONENT_MASK :: (0x7FF00000 << 32) + 0x00000000
+
+LEXBOR_DIYFP_SIGNIFICAND_SIZE :: 64
+
+LEXBOR_SIGNIFICAND_SIZE :: 53
+LEXBOR_SIGNIFICAND_SHIFT :: (LEXBOR_DIYFP_SIGNIFICAND_SIZE - LEXBOR_DBL_SIGNIFICAND_SIZE)
+
+LEXBOR_DECIMAL_EXPONENT_OFF :: 348
+LEXBOR_DECIMAL_EXPONENT_MIN :: (-348)
+LEXBOR_DECIMAL_EXPONENT_MAX :: 340
+LEXBOR_DECIMAL_EXPONENT_DIST :: 8
+
+lexbor_diyfp_t :: struct {
+	significand: c.uint64_t,
+	exp:         c.int,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_cached_power_dec :: proc(exp: c.int, dec_exp: ^c.int) -> lexbor_diyfp_t ---
+	lexbor_cached_power_bin :: proc(exp: c.int, dec_exp: ^c.int) -> lexbor_diyfp_t ---
+}
+lexbor_diyfp_leading_zeros64 :: proc "c" (x: c.uint64_t) -> c.uint64_t {
+	n: c.uint64_t = ---
+
+	if (x == 0) {
+		return 64
+	}
+
+	n = 0
+	x := x // explicit mutation
+
+	for (x & 0x8000000000000000) == 0 {
+		n += 1
+		x <<= 1
+	}
+
+	return n
+}
+
+lexbor_diyfp_from_d2 :: proc "c" (d: c.double) -> lexbor_diyfp_t {
+	biased_exp: c.int = ---
+	significand: c.uint64_t = ---
+	r: lexbor_diyfp_t = ---
+
+	u: struct #raw_union {
+		d:    c.double,
+		u64_: c.uint64_t,
+	} = ---
+
+	u.d = d
+
+	biased_exp = c.int((u.u64_ & LEXBOR_DBL_EXPONENT_MASK) >> LEXBOR_DBL_SIGNIFICAND_SIZE)
+	significand = u.u64_ & LEXBOR_DBL_SIGNIFICAND_MASK
+
+	if (biased_exp != 0) {
+		r.significand = significand + LEXBOR_DBL_HIDDEN_BIT
+		r.exp = biased_exp - LEXBOR_DBL_EXPONENT_BIAS
+	} else {
+		r.significand = significand
+		r.exp = LEXBOR_DBL_EXPONENT_MIN + 1
+	}
+
+	return r
+}
+
+lexbor_diyfp_2d :: proc "c" (v: lexbor_diyfp_t) -> c.double {
+	exp: c.int = ---
+	significand: c.uint64_t = ---
+	biased_exp: c.uint64_t = ---
+
+	u: struct #raw_union {
+		d:    c.double,
+		u64_: c.uint64_t,
+	} = ---
+
+	exp = v.exp
+	significand = v.significand
+
+	for significand > LEXBOR_DBL_HIDDEN_BIT + LEXBOR_DBL_SIGNIFICAND_MASK {
+		significand >>= 1
+		exp += 1
+	}
+
+	if exp >= LEXBOR_DBL_EXPONENT_MAX {
+		return libc.INFINITY
+	}
+
+	if exp < LEXBOR_DBL_EXPONENT_DENORMAL {
+		return 0.0
+	}
+
+	for exp > LEXBOR_DBL_EXPONENT_DENORMAL && (significand & LEXBOR_DBL_HIDDEN_BIT) == 0 {
+		significand <<= 1
+		exp -= 1
+	}
+
+	if exp == LEXBOR_DBL_EXPONENT_DENORMAL && (significand & LEXBOR_DBL_HIDDEN_BIT) == 0 {
+		biased_exp = 0
+	} else {
+		biased_exp = c.uint64_t(exp + LEXBOR_DBL_EXPONENT_BIAS)
+	}
+
+	u.u64_ =
+		(significand & LEXBOR_DBL_SIGNIFICAND_MASK) | (biased_exp << LEXBOR_DBL_SIGNIFICAND_SIZE)
+
+	return u.d
+}
+
+lexbor_diyfp_shift_left :: proc "c" (v: lexbor_diyfp_t, shift: c.uint) -> lexbor_diyfp_t {
+	return lexbor_diyfp(v.significand << shift, v.exp - c.int(shift))
+}
+
+lexbor_diyfp_shift_right :: proc "c" (v: lexbor_diyfp_t, shift: c.uint) -> lexbor_diyfp_t {
+	return lexbor_diyfp(v.significand >> shift, v.exp + c.int(shift))
+}
+
+lexbor_diyfp_sub :: proc "c" (lhs: lexbor_diyfp_t, rhs: lexbor_diyfp_t) -> lexbor_diyfp_t {
+	return lexbor_diyfp(lhs.significand - rhs.significand, lhs.exp)
+}
+
+lexbor_diyfp_mul :: proc "c" (lhs: lexbor_diyfp_t, rhs: lexbor_diyfp_t) -> lexbor_diyfp_t {
+	a: c.uint64_t = ---
+	b: c.uint64_t = ---
+	c_: c.uint64_t = ---
+	d: c.uint64_t = ---
+	ac: c.uint64_t = ---
+	bc: c.uint64_t = ---
+	ad: c.uint64_t = ---
+	bd: c.uint64_t = ---
+	tmp: c.uint64_t = ---
+
+	a = lhs.significand >> 32
+	b = lhs.significand & 0xffffffff
+	c_ = rhs.significand >> 32
+	d = rhs.significand & 0xffffffff
+
+	ac = a * c_
+	bc = b * c_
+	ad = a * d
+	bd = b * d
+
+	tmp = (bd >> 32) + (ad & 0xffffffff) + (bc & 0xffffffff)
+
+	tmp += 1 << 31
+
+	return lexbor_diyfp(ac + (ad >> 32) + (bc >> 32) + (tmp >> 32), lhs.exp + rhs.exp + 64)
+}
+
+lexbor_diyfp_normalize :: proc "c" (v: lexbor_diyfp_t) -> lexbor_diyfp_t {
+	return lexbor_diyfp_shift_left(v, c.uint(lexbor_diyfp_leading_zeros64(v.significand)))
+}
+
+// lexbor/core/dobject.h
+
 LEXBOR_HASH_SHORT_SIZE :: 16
 
 lexbor_str_t :: struct {
