@@ -2,14 +2,6 @@ package lexbor
 
 // dom module
 
-when ODIN_OS == .Windows {
-	when LEXBOR_SHARED {
-		foreign import lib "windows/lexbor.dll"
-	} else {
-		foreign import lib "windows/lexbor.lib"
-	}
-}
-
 import "core:c"
 
 // Define
@@ -174,15 +166,15 @@ lxb_dom_event_set_value_f :: #type proc "c" (
 	length: c.size_t,
 ) -> lxb_status_t
 
-dom_interface_element :: #force_inline proc "c" (obj: rawptr) -> ^lxb_dom_element_t {
+lxb_dom_interface_element :: #force_inline proc "c" (obj: rawptr) -> ^lxb_dom_element_t {
 	return cast(^lxb_dom_element_t)obj
 }
 
 
 // Fucntions
 
-@(default_calling_convention = "c", link_prefix = "lxb_")
+@(default_calling_convention = "c")
 foreign lib {
-	dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
+	lxb_dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
 	// dom_element_qualified_name :: proc(element: ^lxb_dom_element_t, len: ^c.size_t) -> [^]lxb_char_t ---
 }
