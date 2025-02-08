@@ -708,6 +708,88 @@ lexbor_hash_entries_count :: proc "c" (hash: ^lexbor_hash_t) -> c.size_t {
 
 // lexbor/core/in.h
 
+lexbor_in_node_t :: lexbor_in_node
+lexbor_in_opt_t :: c.int
+
+lexbor_in_opt :: enum c.int {
+	LEXBOR_IN_OPT_UNDEF    = 0x00,
+	LEXBOR_IN_OPT_READONLY = 0x01,
+	LEXBOR_IN_OPT_DONE     = 0x02,
+	LEXBOR_IN_OPT_FAKE     = 0x04,
+	LEXBOR_IN_OPT_ALLOC    = 0x08,
+}
+
+lexbor_in_t :: struct {
+	nodes: ^lexbor_dobject_t,
+}
+
+lexbor_in_node :: struct {
+	offset:   c.size_t,
+	opt:      lexbor_in_opt_t,
+	begin:    [^]lxb_char_t,
+	end:      [^]lxb_char_t,
+	use:      [^]lxb_char_t,
+	next:     ^lexbor_in_node_t,
+	prev:     ^lexbor_in_node_t,
+	incoming: ^lexbor_in_t,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_in_create :: proc() -> ^lexbor_in_t ---
+	lexbor_in_init :: proc(incoming: ^lexbor_in_t, chunk_size: c.size_t) -> lxb_status_t ---
+	lexbor_in_clean :: proc(incoming: ^lexbor_in_t) ---
+	lexbor_in_destroy :: proc(incoming: ^lexbor_in_t, self_destroy: bool) -> ^lexbor_in_t ---
+	lexbor_in_node_make :: proc(incoming: ^lexbor_in_t, last_node: ^lexbor_in_node_t, buf: [^]lxb_char_t, buf_size: c.size_t) -> ^lexbor_in_node_t ---
+	lexbor_in_node_clean :: proc(node: ^lexbor_in_node_t) ---
+	lexbor_in_node_destroy :: proc(incoming: ^lexbor_in_t, node: ^lexbor_in_node_t, self_destroy: bool) -> ^lexbor_in_node_t ---
+	lexbor_in_node_split :: proc(node: ^lexbor_in_node_t, pos: [^]lxb_char_t) -> ^lexbor_in_node_t ---
+	lexbor_in_node_find :: proc(node: ^lexbor_in_node_t, pos: [^]lxb_char_t) -> ^lexbor_in_node_t ---
+	lexbor_in_node_pos_up :: proc(node: ^lexbor_in_node_t, return_node: ^^lexbor_in_node_t, pos: [^]lxb_char_t, offset: c.size_t) -> [^]lxb_char_t ---
+	lexbor_in_node_pos_down :: proc(node: ^lexbor_in_node_t, return_node: ^^lexbor_in_node_t, pos: [^]lxb_char_t, offset: c.size_t) -> [^]lxb_char_t ---
+}
+
+lexbor_in_node_begin :: proc "c" (node: ^lexbor_in_node_t) -> [^]lxb_char_t {
+	return node.begin
+}
+
+lexbor_in_node_end :: proc "c" (node: ^lexbor_in_node_t) -> [^]lxb_char_t {
+	return node.end
+}
+
+lexbor_in_node_offset :: proc "c" (node: ^lexbor_in_node_t) -> c.size_t {
+	return node.offset
+}
+
+lexbor_in_node_next :: proc "c" (node: ^lexbor_in_node_t) -> ^lexbor_in_node_t {
+	return node.next
+}
+
+lexbor_in_node_prev :: proc "c" (node: ^lexbor_in_node_t) -> ^lexbor_in_node_t {
+	return node.prev
+}
+
+lexbor_in_node_in :: proc "c" (node: ^lexbor_in_node_t) -> ^lexbor_in_t {
+	return node.incoming
+}
+
+lexbor_in_segment :: proc "c" (node: ^lexbor_in_node_t, data: [^]lxb_char_t) -> bool {
+	return node.begin <= data && node.end >= data
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_in_node_begin_noi :: proc(node: ^lexbor_in_node_t) -> [^]lxb_char_t ---
+	lexbor_in_node_end_noi :: proc(node: ^lexbor_in_node_t) -> [^]lxb_char_t ---
+	lexbor_in_node_offset_noi :: proc(node: ^lexbor_in_node_t) -> c.size_t ---
+	lexbor_in_node_next_noi :: proc(node: ^lexbor_in_node_t) -> ^lexbor_in_node_t ---
+	lexbor_in_node_prev_noi :: proc(node: ^lexbor_in_node_t) -> ^lexbor_in_node_t ---
+	lexbor_in_node_in_noi :: proc(node: ^lexbor_in_node_t) -> ^lexbor_in_t ---
+	lexbor_in_segment_noi :: proc(node: ^lexbor_in_node_t, data: [^]lxb_char_t) -> bool ---
+}
+
+// lexbor/core/lexbor.h
+
 lexbor_str_t :: struct {
 	data:   [^]lxb_char_t,
 	length: c.size_t,
