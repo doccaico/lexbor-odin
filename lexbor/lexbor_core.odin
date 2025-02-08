@@ -2,6 +2,8 @@ package lexbor
 
 import "core:c"
 import "core:c/libc"
+import "core:fmt"
+import "core:mem"
 
 // lexbor/core/array.h
 
@@ -219,9 +221,12 @@ lexbor_serialize_ctx_t :: struct {
 
 // lexbor/core/bst.h
 
+@(require_results)
 lxb_bst_root :: #force_inline proc "c" (bst: ^lexbor_bst) -> ^lexbor_bst_entry_t {
 	return bst.root
 }
+
+@(require_results)
 lxb_bst_root_ref :: #force_inline proc "c" (bst: ^lexbor_bst) -> ^^lexbor_bst_entry_t {
 	return &bst.root
 }
@@ -879,7 +884,7 @@ lexbor_mem_chunk_length :: proc "c" (mem: ^lexbor_mem_t) -> c.size_t {
 }
 
 @(require_results)
-lexbor_mem_chunk_align :: proc "c" (size: c.size_t) -> c.size_t {
+lexbor_mem_align :: proc "c" (size: c.size_t) -> c.size_t {
 	if (size % LEXBOR_MEM_ALIGN_STEP) != 0 {
 		return size + (LEXBOR_MEM_ALIGN_STEP - (size % LEXBOR_MEM_ALIGN_STEP))
 	}
@@ -906,6 +911,42 @@ foreign lib {
 
 // lexbor/core/mraw.h
 
+@(require_results)
+lexbor_mraw_meta_size :: #force_inline proc "c" () -> c.size_t {
+	if (size_of(c.size_t) % LEXBOR_MEM_ALIGN_STEP) != 0 {
+		return(
+			size_of(c.size_t) +
+			(LEXBOR_MEM_ALIGN_STEP - (size_of(c.size_t) % LEXBOR_MEM_ALIGN_STEP)) \
+		)
+
+	}
+	return size_of(c.size_t)
+}
+
+lexbor_mraw_t :: struct {
+	mem:       ^lexbor_mem_t,
+	cache:     ^lexbor_bst_t,
+	ref_count: c.size_t,
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_mraw_create :: proc() -> ^lexbor_mraw_t ---
+	lexbor_mraw_init :: proc(mraw: ^lexbor_mraw_t, chunk_size: c.size_t) -> lxb_status_t ---
+	lexbor_mraw_clean :: proc(mraw: ^lexbor_mraw_t) ---
+	lexbor_mraw_destroy :: proc(mraw: ^lexbor_mraw_t, destroy_self: bool) -> ^lexbor_mraw_t ---
+	lexbor_mraw_alloc :: proc(mraw: ^lexbor_mraw_t, size: c.size_t) -> rawptr ---
+	lexbor_mraw_calloc :: proc(mraw: ^lexbor_mraw_t, size: c.size_t) -> rawptr ---
+	lexbor_mraw_realloc :: proc(mraw: ^lexbor_mraw_t, data: rawptr, new_size: c.size_t) -> rawptr ---
+	lexbor_mraw_free :: proc(mraw: ^lexbor_mraw_t, data: rawptr) -> rawptr ---
+}
+
+@(require_results)
+lexbor_mraw_data_size :: proc "c" (data: rawptr) -> c.size_t {
+	return (^c.size_t)((uintptr((^c.uint8_t)(data))) - (uintptr(lexbor_mraw_meta_size())))^
+}
+
+
 // TODO
 
 // lexbor/core/str.h
@@ -926,16 +967,3 @@ lexbor_callback_f :: #type proc "c" (
 	size: c.size_t,
 	ctx: rawptr,
 ) -> lxb_status_t
-
-// lexbor/core/mraw.h
-
-lexbor_mraw_t :: struct {
-	mem:       ^lexbor_mem_t,
-	cache:     ^lexbor_bst_t,
-	ref_count: c.size_t,
-}
-
-@(default_calling_convention = "c")
-foreign lib {
-	lexbor_mraw_free :: proc(mraw: ^lexbor_mraw_t, data: rawptr) -> rawptr ---
-}

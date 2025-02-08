@@ -32,8 +32,9 @@ main :: proc() {
 	f(10)
 	n: c.int = 11
 	f(c.int64_t(n))
-	a, b: i32 = ---
-	fmt.println(a)
-	fmt.println(b)
+	// a, b: i32 = ---
+	// fmt.println(a)
+	// fmt.println(b)
+	fmt.println(100 % 3)
 
 }

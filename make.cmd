@@ -5,7 +5,7 @@ setlocal
 set include=c:\Work\c\test-lexbor\include;%include%
 set lib=.\lexbor\windows;%lib%
 
-cl main.c lexbor.lib
+cl /nologo main.c lexbor.lib
 
 endlocal
 
