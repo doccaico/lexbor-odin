@@ -946,6 +946,35 @@ lexbor_mraw_data_size :: proc "c" (data: rawptr) -> c.size_t {
 	return (^c.size_t)((uintptr((^c.uint8_t)(data))) - (uintptr(lexbor_mraw_meta_size())))^
 }
 
+lexbor_mraw_data_size_set :: proc "c" (data: rawptr, size: c.size_t) {
+	data := data // explicit mutation
+	size := size // explicit mutation
+	data = (rawptr)((uintptr((^c.uint8_t)(data))) - (uintptr(lexbor_mraw_meta_size())))
+	libc.memcpy(data, &size, size_of(c.size_t))
+}
+
+@(require_results)
+lexbor_mraw_dup :: proc "c" (mraw: ^lexbor_mraw_t, src: rawptr, size: c.size_t) -> rawptr {
+	data := lexbor_mraw_alloc(mraw, size)
+	if (data != nil) {
+		libc.memcpy(data, src, size)
+	}
+	return data
+}
+
+@(require_results)
+lexbor_mraw_reference_count :: proc "c" (mraw: ^lexbor_mraw_t) -> c.size_t {
+	return mraw.ref_count
+}
+
+@(default_calling_convention = "c")
+foreign lib {
+	lexbor_mraw_data_size_noi :: proc(data: rawptr) -> c.size_t ---
+	lexbor_mraw_data_size_set_noi :: proc(data: rawptr, size: c.size_t) ---
+	lexbor_mraw_dup_noi :: proc(mraw: ^lexbor_mraw_t, src: rawptr, size: c.size_t) -> rawptr ---
+}
+
+// lexbor/core/perf.h
 
 // TODO
 
