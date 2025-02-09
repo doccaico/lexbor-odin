@@ -153,14 +153,14 @@ foreign lib {
 	lexbor_avl_clean :: proc(avl: ^lexbor_avl_t) ---
 	lexbor_avl_destroy :: proc(avl: ^lexbor_avl_t, self_destroy: bool) -> ^lexbor_avl_t ---
 	lexbor_avl_node_make :: proc(avl: ^lexbor_avl_t, type: c.size_t, value: rawptr) -> ^lexbor_avl_node_t ---
-	lexbor_avl_node_clean :: proc(avl: ^lexbor_avl_t) ---
+	lexbor_avl_node_clean :: proc(avl: ^lexbor_avl_node_t) ---
 	lexbor_avl_node_destroy :: proc(avl: ^lexbor_avl_t, node: ^lexbor_avl_node_t, self_destroy: bool) -> ^lexbor_avl_node_t ---
-	lexbor_avl_node_insert :: proc(avl: ^lexbor_avl_t, scope: ^^lexbor_avl_node_t, type: c.size_t, value: rawptr) -> ^lexbor_avl_node_t ---
-	lexbor_avl_node_search :: proc(avl: ^lexbor_avl_t, scope: ^^lexbor_avl_node_t, type: c.size_t) -> ^lexbor_avl_node_t ---
-	lexbor_avl_node_remove :: proc(avl: ^lexbor_avl_t, scope: ^^lexbor_avl_node_t, type: c.size_t) -> rawptr ---
-	lexbor_avl_node_remove_by_node :: proc(avl: ^lexbor_avl_t, root: ^^lexbor_avl_node_t, node: ^lexbor_avl_node_t) ---
-	lexbor_avl_node_foreach :: proc(avl: ^lexbor_avl_t, scope: ^^lexbor_avl_node_t, cb: lexbor_avl_node_f, ctx: rawptr) -> lxb_status_t ---
-	lexbor_avl_node_foreach_recursion :: proc(avl: ^lexbor_avl_t, scope: ^lexbor_avl_node_t, callback: lexbor_avl_node_f, ctx: rawptr) ---
+	lexbor_avl_insert :: proc(avl: ^lexbor_avl_t, scope: ^^lexbor_avl_node_t, type: c.size_t, value: rawptr) -> ^lexbor_avl_node_t ---
+	lexbor_avl_search :: proc(avl: ^lexbor_avl_t, scope: ^lexbor_avl_node_t, type: c.size_t) -> ^lexbor_avl_node_t ---
+	lexbor_avl_remove :: proc(avl: ^lexbor_avl_t, scope: ^^lexbor_avl_node_t, type: c.size_t) -> rawptr ---
+	lexbor_avl_remove_by_node :: proc(avl: ^lexbor_avl_t, root: ^^lexbor_avl_node_t, node: ^lexbor_avl_node_t) ---
+	lexbor_avl_foreach :: proc(avl: ^lexbor_avl_t, scope: ^^lexbor_avl_node_t, cb: lexbor_avl_node_f, ctx: rawptr) -> lxb_status_t ---
+	lexbor_avl_foreach_recursion :: proc(avl: ^lexbor_avl_t, scope: ^lexbor_avl_node_t, callback: lexbor_avl_node_f, ctx: rawptr) ---
 }
 
 // lexbor/core/base.h
