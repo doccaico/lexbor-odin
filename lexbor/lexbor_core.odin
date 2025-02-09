@@ -64,7 +64,7 @@ lexbor_array_obj_t :: struct {
 @(default_calling_convention = "c")
 foreign lib {
 	lexbor_array_obj_create :: proc() -> ^lexbor_array_obj_t ---
-	lexbor_array_obj_init :: proc(array: ^lexbor_array_obj_t, size: c.size_t, struct_size: c.size_t) -> ^lexbor_array_obj_t ---
+	lexbor_array_obj_init :: proc(array: ^lexbor_array_obj_t, size: c.size_t, struct_size: c.size_t) -> lxb_status_t ---
 	lexbor_array_obj_clean :: proc(array: ^lexbor_array_obj_t) ---
 	lexbor_array_obj_destroy :: proc(array: ^lexbor_array_obj_t, self_destroy: bool) -> ^lexbor_array_obj_t ---
 	lexbor_array_obj_expand :: proc(array: ^lexbor_array_obj_t, up_to: c.size_t) -> ^c.uint8_t ---
