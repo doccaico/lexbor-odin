@@ -5,8 +5,6 @@ import "core:testing"
 
 import lb "../../lexbor"
 
-// https://github.com/lexbor/lexbor/blob/v2.4.0/test/lexbor/core/mraw.c
-
 @(test)
 init :: proc(t: ^testing.T) {
 	mraw := lb.lexbor_mraw_create()
@@ -563,7 +561,7 @@ mraw_calloc :: proc(t: ^testing.T) {
 	testing.expect(t, data != nil)
 	testing.expect_value(t, lb.lexbor_mraw_data_size(data), 1024)
 
-	for i := 0; i < 1024; i += 1 {
+	for i := c.size_t(0); i < 1024; i += 1 {
 		testing.expect_value(t, data[i], 0x00)
 	}
 

@@ -21,7 +21,7 @@ foreign lib {
 	lexbor_array_destroy :: proc(array: ^lexbor_array_t, self_destroy: bool) -> ^lexbor_array_t ---
 	lexbor_array_expand :: proc(array: ^lexbor_array_t, up_to: c.size_t) -> ^rawptr ---
 	lexbor_array_push :: proc(array: ^lexbor_array_t, value: rawptr) -> lxb_status_t ---
-	lexbor_array_pop :: proc(array: ^lexbor_array_t) -> ^rawptr ---
+	lexbor_array_pop :: proc(array: ^lexbor_array_t) -> rawptr ---
 	lexbor_array_insert :: proc(array: ^lexbor_array_t, idx: c.size_t, value: rawptr) -> lxb_status_t ---
 	lexbor_array_set :: proc(array: ^lexbor_array_t, idx: c.size_t, value: rawptr) -> lxb_status_t ---
 	lexbor_array_delete :: proc(array: ^lexbor_array_t, begin: c.size_t, length: c.size_t) ---
