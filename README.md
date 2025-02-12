@@ -1,4 +1,5 @@
-### WIP
+### (WIP) lexbor-odin (currently windows only)
+Experimental Odin wrapper for [Lexbor](https://github.com/lexbor/lexbor/) v2.4.0
 
 #### Renaming
 - lexbor/core/hash.h
